@@ -1,13 +1,15 @@
-# Start from official n8n image
-FROM n8nio/n8n:2.4.4
+# Start from official n8n image (Debian-based)
+FROM n8nio/n8n:2.4.4-debian
 
-# Switch to root to install Python
+# Switch to root to install packages
 USER root
 
-# Install Python 3 and pip (Alpine-based image)
-RUN apk add --no-cache python3 py3-pip ffmpeg
+# Install Python3, pip, FFmpeg
+RUN apt-get update && \
+    apt-get install -y python3 python3-pip ffmpeg && \
+    rm -rf /var/lib/apt/lists/*
 
-# Switch back to n8n user
+# Switch back to node user
 USER node
 
 # set ENV
