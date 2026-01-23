@@ -26,3 +26,5 @@ ENV N8N_PORT=5678
 ENV N8N_PROTOCOL=https
 ENV N8N_PROXY_HOP=1
 ENV WEBHOOK_URL=https://n8n-zahidarman.onrender.com
+ENV N8N_LOG_LEVEL=info
+ENV NODE_ENV=production
