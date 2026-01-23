@@ -1,19 +1,28 @@
-# Start from official n8n image (Debian-based)
-FROM n8nio/n8n:2.4.4-debian
+# 1️⃣ Base image: Debian-based Node
+FROM node:20-slim
 
-# Switch to root to install packages
+# 2️⃣ Set working directory
+WORKDIR /app
+
+# 3️⃣ Switch to root to install system dependencies
 USER root
 
-# Install Python3, pip, FFmpeg
+# 4️⃣ Install system packages: Python3, pip, FFmpeg, Git
 RUN apt-get update && \
-    apt-get install -y python3 python3-pip ffmpeg && \
+    apt-get install -y python3 python3-pip ffmpeg git curl && \
     rm -rf /var/lib/apt/lists/*
 
-# Switch back to node user
-USER node
+# 5️⃣ Install n8n globally
+RUN npm install -g n8n@2.4.4
 
-# set ENV
-ENV DBPOSTGRESDB_SSL=true
+# 6️⃣ Switch back to non-root user (good practice)
+RUN useradd -m n8nuser
+USER n8nuser
+
+# 7️⃣ Expose port n8n listens on
+EXPOSE 5678
+
+# 8️⃣ Environment variables
 ENV DB_POSTGRESDB_DATABASE=postgres
 ENV DB_POSTGRESDB_HOST=aws-1-ap-south-1.pooler.supabase.com
 ENV DB_POSTGRESDB_PASSWORD=zJ1aWrJOO3E5tVgl
@@ -30,3 +39,6 @@ ENV N8N_PROXY_HOP=1
 ENV WEBHOOK_URL=https://n8n-zahidarman.onrender.com
 ENV N8N_LOG_LEVEL=info
 ENV NODE_ENV=production
+
+# 9️⃣ Default command to run n8n
+CMD ["n8n"]
