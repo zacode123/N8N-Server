@@ -5,7 +5,7 @@ FROM n8nio/n8n:2.4.4
 USER root
 
 # Install Python 3 and pip (Alpine-based image)
-RUN apk add --no-cache python3 py3-pip
+RUN apk add --no-cache python3 py3-pip ffmpeg
 
 # Switch back to n8n user
 USER node
