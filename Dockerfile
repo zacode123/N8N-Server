@@ -18,7 +18,7 @@ RUN npm install -g n8n@latest
 RUN adduser -D n8nuser
 USER n8nuser
 
-EXPOSE 5678
+EXPOSE 5678 5679
 
 ENTRYPOINT ["tini", "--"]
-CMD ["n8n"]
+CMD ["n8n", "start"]
