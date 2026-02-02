@@ -7,7 +7,7 @@ USER root
 RUN apk add --no-cache \
     python3 \
     py3-pip \
-    ffmpeg \
+    curl \
     libc6-compat \
     libstdc++ \
     ca-certificates \
