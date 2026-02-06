@@ -1,24 +1,5 @@
-FROM node:20-alpine
+FROM n8nio/n8n:latest
 
-WORKDIR /app
+ENV NODE_OPTIONS=--max-old-space-size=4096
 
-USER root
-
-RUN apk add --no-cache \
-    python3 \
-    py3-pip \
-    curl \
-    libc6-compat \
-    libstdc++ \
-    ca-certificates \
-    tini
-
-RUN npm install -g n8n@latest
-
-RUN adduser -D n8nuser
-USER n8nuser
-
-EXPOSE 5678 5679
-
-ENTRYPOINT ["tini", "--"]
-CMD ["n8n", "start"]
+USER node
