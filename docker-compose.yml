@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   n8n:
     image: n8nio/n8n:latest
@@ -7,42 +5,46 @@ services:
     ports:
       - "5678:5678"
       - "5679:5679"
+    environment:
+      # Database
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: aws-1-ap-south-1.pooler.supabase.com
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: postgres
+      DB_POSTGRESDB_USER: postgres.skjwescceppmregjnwmg
+      DB_POSTGRESDB_PASSWORD: zJ1aWrJOO3E5tVgl
+      DB_POSTGRESDB_SCHEMA: public
+      DB_POSTGRESDB_SSL: "true"
+      DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED: "false"
+
+      # Core
+      N8N_ENCRYPTION_KEY: 2aebb6d396bdac2695ca8128e9a05254
+      N8N_HOST: localhost
+      N8N_PORT: 5678
+      NODE_ENV: production
+
+      # ✅ REQUIRED FOR RUNNERS
+      EXECUTIONS_MODE: queue
+      N8N_RUNNERS_ENABLED: "true"
+      N8N_RUNNERS_AUTH_TOKEN: d733c07e718db5ecdedeb3571283faaf
+      N8N_TASK_BROKER_PORT: 5679
+
     networks:
       - n8n-net
-    environment:
-      - DB_TYPE=postgresdb
-      - DB_POSTGRESDB_HOST=aws-1-ap-south-1.pooler.supabase.com
-      - DB_POSTGRESDB_PORT=5432
-      - DB_POSTGRESDB_DATABASE=postgres
-      - DB_POSTGRESDB_USER=postgres.skjwescceppmregjnwmg
-      - DB_POSTGRESDB_PASSWORD=zJ1aWrJOO3E5tVgl
-      - DB_POSTGRESDB_SCHEMA=public
-      - DB_POSTGRESDB_SSL=true
-      - DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED=false
-      - N8N_ENCRYPTION_KEY=2aebb6d396bdac2695ca8128e9a05254
-      - N8N_HOST=zahidarman-n8n.onrender.com
-      - N8N_PROTOCOL=https
-      - N8N_PORT=5678
-      - WEBHOOK_URL=https://zahidarman-n8n.onrender.com
-      - NODE_ENV=production
-      - N8N_LOG_LEVEL=warn
-      - N8N_RUNNERS_MODE=external
-      - N8N_RUNNERS_AUTH_TOKEN=d733c07e718db5ecdedeb3571283faaf
-      - N8N_RUNNERS_BROKER_LISTEN_ADDRESS=0.0.0.0
-      - N8N_TASK_BROKER_PORT=5679
 
-  runner:
+  n8n-runner:
     image: n8nio/runners:latest
     container_name: n8n-runner
     depends_on:
       - n8n
+    environment:
+      N8N_RUNNERS_AUTH_TOKEN: d733c07e718db5ecdedeb3571283faaf
+      N8N_RUNNERS_TASK_BROKER_URI: http://n8n:5679
+      N8N_RUNNERS_ENABLE_PYTHON: "true"
+      NODE_ENV: production
     networks:
       - n8n-net
-    environment:
-      - N8N_RUNNERS_AUTH_TOKEN=d733c07e718db5ecdedeb3571283faaf
-      - N8N_RUNNERS_TASK_BROKER_URI=http://n8n:5679
-      - N8N_RUNNERS_ENABLE_PYTHON=true
-      - NODE_ENV=production
 
 networks:
   n8n-net:
+    driver: bridge
