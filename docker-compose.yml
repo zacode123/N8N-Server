@@ -5,6 +5,11 @@ services:
     restart: always
     networks:
       - n8n-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   n8n:
     image: n8nio/n8n:latest
@@ -19,7 +24,7 @@ services:
       DB_POSTGRESDB_PORT: 5432
       DB_POSTGRESDB_DATABASE: postgres
       DB_POSTGRESDB_USER: postgres.skjwescceppmregjnwmg
-      DB_POSTGRESDB_PASSWORD: zJ1aWrJOO3E5tVgl
+      DB_POSTGRESDB_PASSWORD: postgres.skjwescceppmregjnwmg
       DB_POSTGRESDB_SCHEMA: public
       DB_POSTGRESDB_SSL: "true"
       DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED: "false"
@@ -28,18 +33,28 @@ services:
       NODE_ENV: production
       N8N_ENCRYPTION_KEY: 2aebb6d396bdac2695ca8128e9a05254
 
-      # ✅ External runners
+      # ✅ Fix missing packages warning
+      N8N_REINSTALL_MISSING_PACKAGES: "true"
+      N8N_COMMUNITY_PACKAGES_ENABLED: "true"
+
+      # External runners
       N8N_RUNNERS_MODE: external
       N8N_RUNNERS_AUTH_TOKEN: d733c07e718db5ecdedeb3571283faaf
 
-      # Redis (REQUIRED)
+      # Redis (required)
       QUEUE_BULL_REDIS_HOST: redis
       QUEUE_BULL_REDIS_PORT: 6379
 
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
     networks:
       - n8n-net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5678/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   n8n-runner:
     image: n8nio/runners:latest
@@ -51,7 +66,8 @@ services:
       N8N_RUNNERS_ENABLE_PYTHON: "true"
       NODE_ENV: production
     depends_on:
-      - n8n
+      n8n:
+        condition: service_healthy
     networks:
       - n8n-net
 
