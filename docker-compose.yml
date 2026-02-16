@@ -1,10 +1,17 @@
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: n8n-redis
+    restart: always
+    networks:
+      - n8n-net
+
   n8n:
     image: n8nio/n8n:latest
     container_name: n8n
+    restart: always
     ports:
       - "5678:5678"
-      - "5679:5679"
     environment:
       # Database
       DB_TYPE: postgresdb
@@ -18,30 +25,33 @@ services:
       DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED: "false"
 
       # Core
-      N8N_ENCRYPTION_KEY: 2aebb6d396bdac2695ca8128e9a05254
-      N8N_HOST: localhost
-      N8N_PORT: 5678
       NODE_ENV: production
+      N8N_ENCRYPTION_KEY: 2aebb6d396bdac2695ca8128e9a05254
 
-      # ✅ REQUIRED FOR RUNNERS
-      EXECUTIONS_MODE: queue
-      N8N_RUNNERS_ENABLED: "true"
+      # ✅ External runners
+      N8N_RUNNERS_MODE: external
       N8N_RUNNERS_AUTH_TOKEN: d733c07e718db5ecdedeb3571283faaf
-      N8N_TASK_BROKER_PORT: 5679
 
+      # Redis (REQUIRED)
+      QUEUE_BULL_REDIS_HOST: redis
+      QUEUE_BULL_REDIS_PORT: 6379
+
+    depends_on:
+      - redis
     networks:
       - n8n-net
 
   n8n-runner:
     image: n8nio/runners:latest
     container_name: n8n-runner
-    depends_on:
-      - n8n
+    restart: always
     environment:
       N8N_RUNNERS_AUTH_TOKEN: d733c07e718db5ecdedeb3571283faaf
       N8N_RUNNERS_TASK_BROKER_URI: http://n8n:5679
       N8N_RUNNERS_ENABLE_PYTHON: "true"
       NODE_ENV: production
+    depends_on:
+      - n8n
     networks:
       - n8n-net
 
