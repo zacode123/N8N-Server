@@ -4,4 +4,5 @@ ENV NODE_OPTIONS=--max-old-space-size=4096
 
 USER node
 
-CMD sh -c "n8n export:credentials --all --decrypted --output=/dev/stdout && n8n"
+ENTRYPOINT ["n8n"]
+CMD ["export:credentials", "--all", "--decrypted", "--output=/dev/stdout"]
